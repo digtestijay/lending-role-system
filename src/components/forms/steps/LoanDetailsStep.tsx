@@ -40,62 +40,68 @@ const LoanDetailsStep: React.FC<LoanDetailsStepProps> = ({ data, onDataChange })
   };
 
   return (
-    <div className="space-y-6">
-      <h3 className="text-lg font-semibold">Loan Details</h3>
+    <div className="space-y-4 sm:space-y-6">
+      <h3 className="text-base sm:text-lg font-semibold">Loan Details</h3>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="loanAmount">Loan Amount (₹) *</Label>
-            <Input
-              id="loanAmount"
-              type="number"
-              min="10000"
-              max="10000000"
-              value={loanDetails.amount}
-              onChange={(e) => handleChange('amount', Number(e.target.value))}
-              placeholder="Enter loan amount"
-              required
-            />
-            <p className="text-xs text-gray-500">Minimum: ₹10,000 | Maximum: ₹1,00,00,000</p>
+          {/* Mobile: 2 inputs per row, Desktop: 4 inputs per row */}
+          <div className="grid grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="loanAmount" className="text-xs sm:text-sm">Loan Amount (₹) *</Label>
+              <Input
+                id="loanAmount"
+                type="number"
+                min="10000"
+                max="10000000"
+                value={loanDetails.amount}
+                onChange={(e) => handleChange('amount', Number(e.target.value))}
+                placeholder="Enter amount"
+                className="text-xs sm:text-sm"
+                required
+              />
+              <p className="text-xs text-gray-500">Min: ₹10K | Max: ₹1Cr</p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="tenure" className="text-xs sm:text-sm">Tenure (months) *</Label>
+              <Input
+                id="tenure"
+                type="number"
+                min="6"
+                max="360"
+                value={loanDetails.tenure}
+                onChange={(e) => handleChange('tenure', Number(e.target.value))}
+                placeholder="Enter tenure"
+                className="text-xs sm:text-sm"
+                required
+              />
+              <p className="text-xs text-gray-500">Min: 6m | Max: 30y</p>
+            </div>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="tenure">Loan Tenure (months) *</Label>
-            <Input
-              id="tenure"
-              type="number"
-              min="6"
-              max="360"
-              value={loanDetails.tenure}
-              onChange={(e) => handleChange('tenure', Number(e.target.value))}
-              placeholder="Enter tenure in months"
-              required
-            />
-            <p className="text-xs text-gray-500">Minimum: 6 months | Maximum: 30 years (360 months)</p>
-          </div>
-          
-          <div className="space-y-2">
-            <Label>Loan Type *</Label>
+            <Label className="text-xs sm:text-sm">Loan Type *</Label>
             <RadioGroup
               value={loanDetails.type}
               onValueChange={(value) => handleChange('type', value)}
+              className="grid grid-cols-2 gap-2"
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="personal" id="personal" />
-                <Label htmlFor="personal">Personal Loan</Label>
+                <Label htmlFor="personal" className="text-xs sm:text-sm">Personal</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="home" id="home" />
-                <Label htmlFor="home">Home Loan</Label>
+                <Label htmlFor="home" className="text-xs sm:text-sm">Home</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="business" id="business" />
-                <Label htmlFor="business">Business Loan</Label>
+                <Label htmlFor="business" className="text-xs sm:text-sm">Business</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="education" id="education" />
-                <Label htmlFor="education">Education Loan</Label>
+                <Label htmlFor="education" className="text-xs sm:text-sm">Education</Label>
               </div>
             </RadioGroup>
           </div>
@@ -103,9 +109,9 @@ const LoanDetailsStep: React.FC<LoanDetailsStepProps> = ({ data, onDataChange })
         
         <div className="space-y-4">
           {loanDetails.amount > 0 && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="font-medium text-blue-900 mb-2">Loan Summary</h4>
-              <div className="space-y-2 text-sm">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+              <h4 className="font-medium text-blue-900 mb-2 text-sm sm:text-base">Loan Summary</h4>
+              <div className="space-y-2 text-xs sm:text-sm">
                 <div className="flex justify-between">
                   <span>Loan Amount:</span>
                   <span className="font-medium">₹{loanDetails.amount.toLocaleString()}</span>
@@ -131,13 +137,14 @@ const LoanDetailsStep: React.FC<LoanDetailsStepProps> = ({ data, onDataChange })
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="purpose">Loan Purpose *</Label>
+        <Label htmlFor="purpose" className="text-xs sm:text-sm">Loan Purpose *</Label>
         <Textarea
           id="purpose"
           value={loanDetails.purpose}
           onChange={(e) => handleChange('purpose', e.target.value)}
           placeholder="Please describe the purpose of this loan (e.g., home renovation, education fees, business expansion, etc.)"
-          rows={4}
+          rows={3}
+          className="text-xs sm:text-sm"
           required
         />
       </div>

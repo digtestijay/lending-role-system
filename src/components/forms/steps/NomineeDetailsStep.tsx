@@ -30,58 +30,63 @@ const NomineeDetailsStep: React.FC<NomineeDetailsStepProps> = ({ data, onDataCha
   };
 
   return (
-    <div className="space-y-6">
-      <h3 className="text-lg font-semibold">Nominee Information</h3>
-      <p className="text-sm text-gray-600">
+    <div className="space-y-4 sm:space-y-6">
+      <h3 className="text-base sm:text-lg font-semibold">Nominee Information</h3>
+      <p className="text-xs sm:text-sm text-gray-600">
         Please provide details of your nominee who will be the beneficiary in case of unfortunate events.
       </p>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Mobile: 2 inputs per row, Desktop: 4 inputs per row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="space-y-2">
-          <Label htmlFor="nomineeName">Nominee Name *</Label>
+          <Label htmlFor="nomineeName" className="text-xs sm:text-sm">Nominee Name *</Label>
           <Input
             id="nomineeName"
             value={nomineeDetails.name}
             onChange={(e) => handleChange('name', e.target.value)}
             placeholder="Enter nominee name"
+            className="text-xs sm:text-sm"
             required
           />
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="relationship">Relationship *</Label>
+          <Label htmlFor="relationship" className="text-xs sm:text-sm">Relationship *</Label>
           <Input
             id="relationship"
             value={nomineeDetails.relationship}
             onChange={(e) => handleChange('relationship', e.target.value)}
-            placeholder="e.g., Spouse, Child, Parent"
+            placeholder="e.g., Spouse, Child"
+            className="text-xs sm:text-sm"
             required
           />
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="nomineeDob">Date of Birth *</Label>
+          <Label htmlFor="nomineeDob" className="text-xs sm:text-sm">Date of Birth *</Label>
           <Input
             id="nomineeDob"
             type="date"
             value={nomineeDetails.dateOfBirth}
             onChange={(e) => handleChange('dateOfBirth', e.target.value)}
+            className="text-xs sm:text-sm"
             required
           />
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="nomineePhone">Phone Number</Label>
+          <Label htmlFor="nomineePhone" className="text-xs sm:text-sm">Phone Number</Label>
           <Input
             id="nomineePhone"
             value={nomineeDetails.phone}
             onChange={(e) => handleChange('phone', e.target.value)}
-            placeholder="Enter phone number (optional)"
+            placeholder="Enter phone number"
+            className="text-xs sm:text-sm"
           />
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="sharePercentage">Share Percentage *</Label>
+          <Label htmlFor="sharePercentage" className="text-xs sm:text-sm">Share Percentage *</Label>
           <Input
             id="sharePercentage"
             type="number"
@@ -90,19 +95,21 @@ const NomineeDetailsStep: React.FC<NomineeDetailsStepProps> = ({ data, onDataCha
             value={nomineeDetails.sharePercentage}
             onChange={(e) => handleChange('sharePercentage', Number(e.target.value))}
             placeholder="100"
+            className="text-xs sm:text-sm"
             required
           />
         </div>
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="nomineeAddress">Nominee Address *</Label>
+        <Label htmlFor="nomineeAddress" className="text-xs sm:text-sm">Nominee Address *</Label>
         <Textarea
           id="nomineeAddress"
           value={nomineeDetails.address}
           onChange={(e) => handleChange('address', e.target.value)}
           placeholder="Enter complete address of nominee"
           rows={3}
+          className="text-xs sm:text-sm"
           required
         />
       </div>

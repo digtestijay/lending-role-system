@@ -16,7 +16,7 @@ const requiredDocuments = [
   { type: 'aadhar', label: 'Aadhar Card', required: true },
   { type: 'pan', label: 'PAN Card', required: true },
   { type: 'income', label: 'Income Proof', required: true },
-  { type: 'bank_statement', label: 'Bank Statement (Last 6 months)', required: true },
+  { type: 'bank_statement', label: 'Bank Statement', required: true },
 ];
 
 const optionalDocuments = [
@@ -51,37 +51,37 @@ const DocumentUploadStep: React.FC<DocumentUploadStepProps> = ({ data, onDataCha
 
   const renderDocumentCard = (docType: any, document: DocumentUpload) => (
     <Card key={docType.type} className="border-2 border-dashed border-gray-300 hover:border-blue-400 transition-colors">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm flex items-center justify-between">
-          <span className="flex items-center space-x-2">
-            <FileText className="h-4 w-4" />
-            <span>{docType.label}</span>
+      <CardHeader className="pb-2 sm:pb-3">
+        <CardTitle className="text-xs sm:text-sm flex items-center justify-between">
+          <span className="flex items-center space-x-1 sm:space-x-2">
+            <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="truncate">{docType.label}</span>
           </span>
           {docType.required && (
             <span className="text-xs text-red-500">Required</span>
           )}
           {document.uploaded && (
-            <CheckCircle className="h-4 w-4 text-green-500" />
+            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
+      <CardContent className="pt-0">
+        <div className="space-y-2 sm:space-y-3">
           <Input
             type="file"
             accept=".pdf,.jpg,.jpeg,.png"
             onChange={(e) => handleFileChange(docType.type, e.target.files?.[0] || null)}
-            className="cursor-pointer"
+            className="cursor-pointer text-xs sm:text-sm"
           />
           {document.file && (
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <FileText className="h-4 w-4" />
-              <span>{document.file.name}</span>
-              <span className="text-xs">({(document.file.size / 1024 / 1024).toFixed(2)} MB)</span>
+            <div className="flex items-center space-x-1 sm:space-x-2 text-xs text-gray-600">
+              <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="truncate">{document.file.name}</span>
+              <span className="text-xs">({(document.file.size / 1024 / 1024).toFixed(1)}MB)</span>
             </div>
           )}
           <p className="text-xs text-gray-500">
-            Supported formats: PDF, JPG, PNG (Max 5MB)
+            PDF, JPG, PNG (Max 5MB)
           </p>
         </div>
       </CardContent>
@@ -93,16 +93,16 @@ const DocumentUploadStep: React.FC<DocumentUploadStepProps> = ({ data, onDataCha
     .every(doc => doc.uploaded);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Document Upload</h3>
+        <h3 className="text-base sm:text-lg font-semibold">Document Upload</h3>
         <div className="flex items-center space-x-2">
           {requiredDocsUploaded ? (
-            <CheckCircle className="h-5 w-5 text-green-500" />
+            <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
           ) : (
-            <AlertCircle className="h-5 w-5 text-orange-500" />
+            <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
           )}
-          <span className="text-sm text-gray-600">
+          <span className="text-xs sm:text-sm text-gray-600">
             {documents.filter(d => d.uploaded).length} of {documents.length} uploaded
           </span>
         </div>
@@ -110,8 +110,9 @@ const DocumentUploadStep: React.FC<DocumentUploadStepProps> = ({ data, onDataCha
       
       <div className="space-y-4">
         <div>
-          <h4 className="font-medium text-gray-900 mb-3">Required Documents</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <h4 className="font-medium text-gray-900 mb-3 text-sm sm:text-base">Required Documents</h4>
+          {/* Mobile: 2 cards per row, Desktop: 4 cards per row */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
             {requiredDocuments.map(docType => {
               const document = documents.find(d => d.type === docType.type)!;
               return renderDocumentCard(docType, document);
@@ -120,8 +121,8 @@ const DocumentUploadStep: React.FC<DocumentUploadStepProps> = ({ data, onDataCha
         </div>
         
         <div>
-          <h4 className="font-medium text-gray-900 mb-3">Optional Documents</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <h4 className="font-medium text-gray-900 mb-3 text-sm sm:text-base">Optional Documents</h4>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
             {optionalDocuments.map(docType => {
               const document = documents.find(d => d.type === docType.type)!;
               return renderDocumentCard(docType, document);
@@ -130,10 +131,10 @@ const DocumentUploadStep: React.FC<DocumentUploadStepProps> = ({ data, onDataCha
         </div>
       </div>
       
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-start space-x-3">
-          <Upload className="h-5 w-5 text-blue-600 mt-0.5" />
-          <div className="text-sm">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+        <div className="flex items-start space-x-2 sm:space-x-3">
+          <Upload className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 mt-0.5" />
+          <div className="text-xs sm:text-sm">
             <p className="font-medium text-blue-900">Upload Guidelines:</p>
             <ul className="mt-1 text-blue-700 space-y-1">
               <li>• Ensure documents are clear and readable</li>
