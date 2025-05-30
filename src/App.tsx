@@ -8,6 +8,9 @@ import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardRouter from "./components/DashboardRouter";
 import LoanApplicationForm from "./components/forms/LoanApplicationForm";
+import LoansListPage from "./components/pages/LoansListPage";
+import CustomersPage from "./components/pages/CustomersPage";
+import CollectionsPage from "./components/pages/CollectionsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();

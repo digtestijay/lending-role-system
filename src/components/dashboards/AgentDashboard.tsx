@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Plus, Target, TrendingUp, Users, FileText } from 'lucide-react';
 import { Loan, DashboardStats } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 
 const AgentDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -94,17 +95,23 @@ const AgentDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Button className="flex items-center justify-center space-x-2 h-16">
-                <Plus className="h-5 w-5" />
-                <span>New Loan Application</span>
+              <Button asChild className="flex items-center justify-center space-x-2 h-16">
+                <Link to="/loan-application">
+                  <Plus className="h-5 w-5" />
+                  <span>New Loan Application</span>
+                </Link>
               </Button>
-              <Button variant="outline" className="flex items-center justify-center space-x-2 h-16">
-                <FileText className="h-5 w-5" />
-                <span>View All Applications</span>
+              <Button asChild variant="outline" className="flex items-center justify-center space-x-2 h-16">
+                <Link to="/agent/loans">
+                  <FileText className="h-5 w-5" />
+                  <span>View All Applications</span>
+                </Link>
               </Button>
-              <Button variant="outline" className="flex items-center justify-center space-x-2 h-16">
-                <Target className="h-5 w-5" />
-                <span>Performance Report</span>
+              <Button asChild variant="outline" className="flex items-center justify-center space-x-2 h-16">
+                <Link to="/agent/collections">
+                  <Target className="h-5 w-5" />
+                  <span>Collection Table</span>
+                </Link>
               </Button>
             </div>
           </CardContent>
