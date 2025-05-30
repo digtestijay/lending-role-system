@@ -10,12 +10,34 @@ export interface ApiResponse<T> {
 }
 
 class ApiService {
+  private onUnauthorized?: () => void;
+
+  setUnauthorizedHandler(handler: () => void) {
+    this.onUnauthorized = handler;
+  }
+
   private getAuthHeaders(): HeadersInit {
     const token = localStorage.getItem('authToken');
     return {
       'Content-Type': 'application/json',
       ...(token && { Authorization: `Bearer ${token}` }),
     };
+  }
+
+  private handleResponse<T>(response: Response, data: any): ApiResponse<T> {
+    if (response.status === 401) {
+      // Trigger logout on 401 Unauthorized
+      if (this.onUnauthorized) {
+        this.onUnauthorized();
+      }
+      return { success: false, error: 'Session expired. Please login again.' };
+    }
+
+    if (!response.ok) {
+      return { success: false, error: data.message || 'Request failed' };
+    }
+
+    return { success: true, data };
   }
 
   async get<T>(endpoint: string): Promise<ApiResponse<T>> {
@@ -26,12 +48,7 @@ class ApiService {
       });
 
       const data = await response.json();
-      
-      if (!response.ok) {
-        return { success: false, error: data.message || 'Request failed' };
-      }
-
-      return { success: true, data };
+      return this.handleResponse<T>(response, data);
     } catch (error) {
       console.error('API GET Error:', error);
       return { success: false, error: 'Network error occurred' };
@@ -47,12 +64,7 @@ class ApiService {
       });
 
       const data = await response.json();
-      
-      if (!response.ok) {
-        return { success: false, error: data.message || 'Request failed' };
-      }
-
-      return { success: true, data };
+      return this.handleResponse<T>(response, data);
     } catch (error) {
       console.error('API POST Error:', error);
       return { success: false, error: 'Network error occurred' };
@@ -68,12 +80,7 @@ class ApiService {
       });
 
       const data = await response.json();
-      
-      if (!response.ok) {
-        return { success: false, error: data.message || 'Request failed' };
-      }
-
-      return { success: true, data };
+      return this.handleResponse<T>(response, data);
     } catch (error) {
       console.error('API PUT Error:', error);
       return { success: false, error: 'Network error occurred' };
@@ -88,12 +95,7 @@ class ApiService {
       });
 
       const data = await response.json();
-      
-      if (!response.ok) {
-        return { success: false, error: data.message || 'Request failed' };
-      }
-
-      return { success: true, data };
+      return this.handleResponse<T>(response, data);
     } catch (error) {
       console.error('API DELETE Error:', error);
       return { success: false, error: 'Network error occurred' };

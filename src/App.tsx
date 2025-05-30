@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardRouter from "./components/DashboardRouter";
+import LoanApplicationForm from "./components/forms/LoanApplicationForm";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <DashboardRouter />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/loan-application"
+              element={
+                <ProtectedRoute requiredRole="agent">
+                  <LoanApplicationForm />
                 </ProtectedRoute>
               }
             />

@@ -26,7 +26,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const logout = () => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('authToken');
+    setUser(null);
+  };
+
   useEffect(() => {
+    // Set up the API service unauthorized handler
+    apiService.setUnauthorizedHandler(logout);
+
     // Check for stored authentication
     const storedUser = localStorage.getItem('user');
     const storedToken = localStorage.getItem('authToken');
@@ -61,12 +70,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setIsLoading(false);
       return false;
     }
-  };
-
-  const logout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('authToken');
-    setUser(null);
   };
 
   const hasRole = (role: UserRole): boolean => {

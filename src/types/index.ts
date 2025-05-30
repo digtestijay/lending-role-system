@@ -39,3 +39,66 @@ export interface DashboardStats {
   monthlyTarget?: number;
   achievement?: number;
 }
+
+// Loan Application Form Types
+export interface PersonalDetails {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  dateOfBirth: string;
+  gender: 'male' | 'female' | 'other';
+  maritalStatus: 'single' | 'married' | 'divorced' | 'widowed';
+  occupation: string;
+  monthlyIncome: number;
+  panNumber: string;
+  aadharNumber: string;
+}
+
+export interface AddressDetails {
+  currentAddress: {
+    addressLine1: string;
+    addressLine2?: string;
+    city: string;
+    state: string;
+    pincode: string;
+    addressType: 'owned' | 'rented' | 'family';
+  };
+  permanentAddress: {
+    addressLine1: string;
+    addressLine2?: string;
+    city: string;
+    state: string;
+    pincode: string;
+    isSameAsCurrent: boolean;
+  };
+}
+
+export interface NomineeDetails {
+  name: string;
+  relationship: string;
+  dateOfBirth: string;
+  phone?: string;
+  address: string;
+  sharePercentage: number;
+}
+
+export interface DocumentUpload {
+  type: 'aadhar' | 'pan' | 'income' | 'bank_statement' | 'property_papers' | 'other';
+  file: File | null;
+  uploaded: boolean;
+  url?: string;
+}
+
+export interface LoanApplicationData {
+  personalDetails: PersonalDetails;
+  addressDetails: AddressDetails;
+  nomineeDetails: NomineeDetails;
+  documents: DocumentUpload[];
+  loanDetails: {
+    amount: number;
+    purpose: string;
+    tenure: number;
+    type: 'personal' | 'home' | 'business' | 'education';
+  };
+}
