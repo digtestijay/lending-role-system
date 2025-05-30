@@ -31,6 +31,8 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            
+            {/* Agent Routes */}
             <Route
               path="/loan-application"
               element={
@@ -39,7 +41,134 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route
+              path="/agent/loans"
+              element={
+                <ProtectedRoute requiredRole="agent">
+                  <LoansListPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/agent/customers"
+              element={
+                <ProtectedRoute requiredRole="agent">
+                  <CustomersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/agent/collections"
+              element={
+                <ProtectedRoute requiredRole="agent">
+                  <CollectionsPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* GRT Routes */}
+            <Route
+              path="/grt/loans"
+              element={
+                <ProtectedRoute requiredRole="grt">
+                  <LoansListPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/grt/customers"
+              element={
+                <ProtectedRoute requiredRole="grt">
+                  <CustomersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/grt/collections"
+              element={
+                <ProtectedRoute requiredRole="grt">
+                  <CollectionsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/grt/reports"
+              element={
+                <ProtectedRoute requiredRole="grt">
+                  <div className="p-4"><h1 className="text-2xl font-bold">Reports Coming Soon</h1></div>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* BM Routes */}
+            <Route
+              path="/bm/performance"
+              element={
+                <ProtectedRoute requiredRole="bm">
+                  <div className="p-4"><h1 className="text-2xl font-bold">Team Performance Coming Soon</h1></div>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/bm/loans"
+              element={
+                <ProtectedRoute requiredRole="bm">
+                  <LoansListPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/bm/collections"
+              element={
+                <ProtectedRoute requiredRole="bm">
+                  <CollectionsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/bm/customers"
+              element={
+                <ProtectedRoute requiredRole="bm">
+                  <CustomersPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin Routes */}
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <div className="p-4"><h1 className="text-2xl font-bold">User Management Coming Soon</h1></div>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/loans"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <LoansListPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/analytics"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <div className="p-4"><h1 className="text-2xl font-bold">Analytics Coming Soon</h1></div>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/settings"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <div className="p-4"><h1 className="text-2xl font-bold">Settings Coming Soon</h1></div>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

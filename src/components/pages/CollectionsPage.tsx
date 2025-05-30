@@ -1,316 +1,254 @@
 
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../layout/DashboardLayout';
-import { Button } from '../ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Input } from '../ui/input';
-import { Badge } from '../ui/badge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '../ui/table';
-import { Search, Phone, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Search, Phone, Calendar, DollarSign, Clock } from 'lucide-react';
+import { useIsMobile } from '../../hooks/use-mobile';
 
 interface Collection {
   id: string;
   loanId: string;
   customerName: string;
-  phone: string;
-  amount: number;
+  customerPhone: string;
+  amountDue: number;
   dueDate: string;
   overdueDays: number;
-  status: 'due' | 'overdue' | 'collected' | 'follow_up';
-  lastContact: string;
-  agentName: string;
+  status: 'pending' | 'partial' | 'collected' | 'overdue';
+  lastContactDate?: string;
 }
 
-interface CollectionsPageProps {
-  title: string;
-  canCollect?: boolean;
-}
-
-const CollectionsPage: React.FC<CollectionsPageProps> = ({ title, canCollect = true }) => {
+const CollectionsPage: React.FC = () => {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [collections, setCollections] = useState<Collection[]>([]);
-  const [filteredCollections, setFilteredCollections] = useState<Collection[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
-    // Mock data - replace with actual API calls
+    // Mock data
     const mockCollections: Collection[] = [
       {
         id: 'COL001',
         loanId: 'LN001',
         customerName: 'Rajesh Kumar',
-        phone: '+91 9876543210',
-        amount: 25000,
+        customerPhone: '+91 9876543210',
+        amountDue: 25000,
         dueDate: '2024-01-20',
         overdueDays: 5,
         status: 'overdue',
-        lastContact: '2024-01-18',
-        agentName: 'John Agent',
+        lastContactDate: '2024-01-18',
       },
       {
         id: 'COL002',
         loanId: 'LN002',
         customerName: 'Priya Sharma',
-        phone: '+91 9876543211',
-        amount: 15000,
+        customerPhone: '+91 9876543211',
+        amountDue: 15000,
         dueDate: '2024-01-25',
         overdueDays: 0,
-        status: 'due',
-        lastContact: '2024-01-15',
-        agentName: 'Sarah Agent',
-      },
-      {
-        id: 'COL003',
-        loanId: 'LN003',
-        customerName: 'Amit Singh',
-        phone: '+91 9876543212',
-        amount: 30000,
-        dueDate: '2024-01-15',
-        overdueDays: 10,
-        status: 'follow_up',
-        lastContact: '2024-01-20',
-        agentName: 'Mike Agent',
+        status: 'pending',
       },
     ];
-
     setCollections(mockCollections);
-    setFilteredCollections(mockCollections);
   }, []);
 
-  useEffect(() => {
-    if (searchTerm) {
-      const filtered = collections.filter(collection =>
-        collection.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        collection.loanId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        collection.phone.includes(searchTerm)
-      );
-      setFilteredCollections(filtered);
-    } else {
-      setFilteredCollections(collections);
-    }
-  }, [collections, searchTerm]);
+  const canCollect = user?.role === 'agent';
 
-  const getStatusBadgeVariant = (status: Collection['status']) => {
-    switch (status) {
-      case 'due':
-        return 'secondary';
-      case 'overdue':
-        return 'destructive';
-      case 'collected':
-        return 'default';
-      case 'follow_up':
-        return 'outline';
-      default:
-        return 'secondary';
-    }
+  const getStatusBadge = (status: string) => {
+    const variants: Record<string, 'default' | 'secondary' | 'destructive'> = {
+      pending: 'default',
+      partial: 'secondary',
+      collected: 'secondary',
+      overdue: 'destructive',
+    };
+    return <Badge variant={variants[status] || 'default'}>{status.toUpperCase()}</Badge>;
   };
 
-  const getStatusIcon = (status: Collection['status']) => {
-    switch (status) {
-      case 'due':
-        return <Clock className="h-4 w-4" />;
-      case 'overdue':
-        return <AlertTriangle className="h-4 w-4" />;
-      case 'collected':
-        return <CheckCircle className="h-4 w-4" />;
-      case 'follow_up':
-        return <Phone className="h-4 w-4" />;
-      default:
-        return null;
-    }
-  };
+  const filteredCollections = collections.filter(collection => {
+    const matchesSearch = collection.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         collection.loanId.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || collection.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-    }).format(amount);
-  };
-
-  const handleCollectionAction = (collectionId: string, action: string) => {
-    if (!canCollect) return;
-
-    setCollections(prevCollections =>
-      prevCollections.map(collection => {
-        if (collection.id === collectionId) {
-          let newStatus: Collection['status'] = collection.status;
-          if (action === 'collect') newStatus = 'collected';
-          if (action === 'follow_up') newStatus = 'follow_up';
+  const renderMobileCard = (collection: Collection) => (
+    <Card key={collection.id} className="mb-3">
+      <CardContent className="p-4">
+        <div className="flex justify-between items-start mb-3">
+          <div>
+            <h3 className="font-semibold text-sm">{collection.customerName}</h3>
+            <p className="text-xs text-gray-500">Loan: {collection.loanId}</p>
+          </div>
+          {getStatusBadge(collection.status)}
+        </div>
+        
+        <div className="space-y-2 mb-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 text-sm">
+              <DollarSign className="h-3 w-3 text-gray-400" />
+              <span>Amount Due:</span>
+            </div>
+            <span className="font-semibold text-red-600">₹{collection.amountDue.toLocaleString()}</span>
+          </div>
           
-          return { 
-            ...collection, 
-            status: newStatus,
-            lastContact: new Date().toISOString().split('T')[0]
-          };
-        }
-        return collection;
-      })
-    );
-  };
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center space-x-2">
+              <Calendar className="h-3 w-3 text-gray-400" />
+              <span>Due Date:</span>
+            </div>
+            <span>{new Date(collection.dueDate).toLocaleDateString()}</span>
+          </div>
 
-  return (
-    <DashboardLayout title={title}>
-      <div className="space-y-6">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <Clock className="h-8 w-8 text-blue-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Due Today</p>
-                  <p className="text-2xl font-bold">
-                    {filteredCollections.filter(c => c.status === 'due').length}
-                  </p>
-                </div>
+          {collection.overdueDays > 0 && (
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center space-x-2">
+                <Clock className="h-3 w-3 text-red-400" />
+                <span>Overdue:</span>
               </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <AlertTriangle className="h-8 w-8 text-red-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Overdue</p>
-                  <p className="text-2xl font-bold">
-                    {filteredCollections.filter(c => c.status === 'overdue').length}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <CheckCircle className="h-8 w-8 text-green-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Collected</p>
-                  <p className="text-2xl font-bold">
-                    {filteredCollections.filter(c => c.status === 'collected').length}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <Phone className="h-8 w-8 text-orange-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Follow Up</p>
-                  <p className="text-2xl font-bold">
-                    {filteredCollections.filter(c => c.status === 'follow_up').length}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              <span className="text-red-600">{collection.overdueDays} days</span>
+            </div>
+          )}
+
+          <div className="flex items-center space-x-2 text-sm">
+            <Phone className="h-3 w-3 text-gray-400" />
+            <span>{collection.customerPhone}</span>
+          </div>
         </div>
 
-        {/* Search Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Collection Management</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Search by customer name, loan ID, or phone..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </CardContent>
-        </Card>
+        {canCollect && (
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" className="flex-1">
+              <Phone className="h-3 w-3 mr-1" />
+              Call
+            </Button>
+            <Button size="sm" variant="default" className="flex-1">
+              Mark Collected
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
 
-        {/* Collections Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{filteredCollections.length} Collections Found</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="rounded-md border overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Collection ID</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Due Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="hidden md:table-cell">Agent</TableHead>
-                    {canCollect && <TableHead>Actions</TableHead>}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredCollections.map((collection) => (
-                    <TableRow key={collection.id}>
-                      <TableCell className="font-medium">{collection.id}</TableCell>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{collection.customerName}</p>
-                          <p className="text-sm text-gray-500">Loan: {collection.loanId}</p>
-                          <p className="text-sm text-gray-500 md:hidden">{collection.phone}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-medium">{formatCurrency(collection.amount)}</TableCell>
-                      <TableCell>
-                        <div>
-                          <p className="text-sm">{new Date(collection.dueDate).toLocaleDateString()}</p>
-                          {collection.overdueDays > 0 && (
-                            <p className="text-xs text-red-600">
-                              {collection.overdueDays} days overdue
-                            </p>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={getStatusBadgeVariant(collection.status)} className="flex items-center space-x-1 w-fit">
-                          {getStatusIcon(collection.status)}
-                          <span className="capitalize">{collection.status.replace('_', ' ')}</span>
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">{collection.agentName}</TableCell>
-                      {canCollect && (
-                        <TableCell>
-                          <div className="flex space-x-2">
-                            {collection.status !== 'collected' && (
-                              <>
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleCollectionAction(collection.id, 'collect')}
-                                >
-                                  Collect
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleCollectionAction(collection.id, 'follow_up')}
-                                >
-                                  Follow Up
-                                </Button>
-                              </>
-                            )}
-                          </div>
-                        </TableCell>
-                      )}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+  const renderDesktopTable = () => (
+    <Card>
+      <CardContent className="p-0">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="border-b bg-gray-50">
+              <tr>
+                <th className="text-left p-4 font-medium">Customer</th>
+                <th className="text-left p-4 font-medium">Loan ID</th>
+                <th className="text-left p-4 font-medium">Amount Due</th>
+                <th className="text-left p-4 font-medium">Due Date</th>
+                <th className="text-left p-4 font-medium">Status</th>
+                <th className="text-left p-4 font-medium">Contact</th>
+                {canCollect && <th className="text-left p-4 font-medium">Actions</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredCollections.map((collection) => (
+                <tr key={collection.id} className="border-b hover:bg-gray-50">
+                  <td className="p-4">
+                    <div>
+                      <div className="font-medium">{collection.customerName}</div>
+                      <div className="text-sm text-gray-500">{collection.customerPhone}</div>
+                    </div>
+                  </td>
+                  <td className="p-4">{collection.loanId}</td>
+                  <td className="p-4">
+                    <span className="font-semibold text-red-600">
+                      ₹{collection.amountDue.toLocaleString()}
+                    </span>
+                    {collection.overdueDays > 0 && (
+                      <div className="text-xs text-red-500">
+                        {collection.overdueDays} days overdue
+                      </div>
+                    )}
+                  </td>
+                  <td className="p-4">{new Date(collection.dueDate).toLocaleDateString()}</td>
+                  <td className="p-4">{getStatusBadge(collection.status)}</td>
+                  <td className="p-4">
+                    {collection.lastContactDate ? (
+                      <div className="text-sm">
+                        Last: {new Date(collection.lastContactDate).toLocaleDateString()}
+                      </div>
+                    ) : (
+                      <span className="text-gray-400">No contact</span>
+                    )}
+                  </td>
+                  {canCollect && (
+                    <td className="p-4">
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline">
+                          <Phone className="h-3 w-3" />
+                        </Button>
+                        <Button size="sm" variant="default">
+                          Collect
+                        </Button>
+                      </div>
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <DashboardLayout title="Collections">
+      <div className="space-y-4">
+        {/* Header */}
+        <div>
+          <h2 className="text-xl sm:text-2xl font-bold">Collections</h2>
+          <p className="text-sm text-gray-600">Track and manage loan collections</p>
+        </div>
+
+        {/* Search and filters */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search by customer or loan ID..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-3 py-2 border rounded-md bg-white text-sm"
+          >
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="overdue">Overdue</option>
+            <option value="partial">Partial</option>
+            <option value="collected">Collected</option>
+          </select>
+        </div>
+
+        {/* Collections list */}
+        {filteredCollections.length === 0 ? (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <p className="text-gray-500">No collections found.</p>
+            </CardContent>
+          </Card>
+        ) : isMobile ? (
+          <div>
+            {filteredCollections.map(renderMobileCard)}
+          </div>
+        ) : (
+          renderDesktopTable()
+        )}
       </div>
     </DashboardLayout>
   );

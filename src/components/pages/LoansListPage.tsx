@@ -1,31 +1,25 @@
 
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../layout/DashboardLayout';
-import LoanTable from '../common/LoanTable';
+import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Badge } from '../ui/badge';
+import { Plus, Search, Filter, Eye, Edit, CheckCircle, XCircle } from 'lucide-react';
 import { Input } from '../ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Search, Filter, Download, Plus } from 'lucide-react';
 import { Loan } from '../../types';
-import { useAuth } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
+import { useIsMobile } from '../../hooks/use-mobile';
 
-interface LoansListPageProps {
-  title: string;
-  canApprove?: boolean;
-  canCreate?: boolean;
-}
-
-const LoansListPage: React.FC<LoansListPageProps> = ({ title, canApprove = false, canCreate = false }) => {
+const LoansListPage: React.FC = () => {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [loans, setLoans] = useState<Loan[]>([]);
-  const [filteredLoans, setFilteredLoans] = useState<Loan[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
-    // Mock data - replace with actual API calls
+    // Mock data - replace with actual API call
     const mockLoans: Loan[] = [
       {
         id: 'LN001',
@@ -35,9 +29,7 @@ const LoansListPage: React.FC<LoansListPageProps> = ({ title, canApprove = false
         status: 'pending',
         applicationDate: '2024-01-15',
         agentId: '1',
-        agentName: 'John Agent',
-        interestRate: 8.5,
-        tenure: 240,
+        agentName: 'Agent Name',
       },
       {
         id: 'LN002',
@@ -47,123 +39,198 @@ const LoansListPage: React.FC<LoansListPageProps> = ({ title, canApprove = false
         status: 'approved',
         applicationDate: '2024-01-10',
         agentId: '1',
-        agentName: 'John Agent',
-        interestRate: 12.0,
-        tenure: 36,
+        agentName: 'Agent Name',
       },
       {
         id: 'LN003',
         applicantName: 'Amit Singh',
-        amount: 750000,
+        amount: 300000,
         type: 'business',
-        status: 'disbursed',
-        applicationDate: '2024-01-08',
-        agentId: '2',
-        agentName: 'Sarah Agent',
-        interestRate: 10.5,
-        tenure: 60,
+        status: 'rejected',
+        applicationDate: '2024-01-12',
+        agentId: '1',
+        agentName: 'Agent Name',
       },
     ];
-
     setLoans(mockLoans);
-    setFilteredLoans(mockLoans);
   }, []);
 
-  useEffect(() => {
-    let filtered = loans;
-
-    if (searchTerm) {
-      filtered = filtered.filter(loan =>
-        loan.applicantName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        loan.id.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(loan => loan.status === statusFilter);
-    }
-
-    setFilteredLoans(filtered);
-  }, [loans, searchTerm, statusFilter]);
-
-  const handleLoanAction = (loanId: string, action: string) => {
-    if (!canApprove) return;
-
-    setLoans(prevLoans =>
-      prevLoans.map(loan => {
-        if (loan.id === loanId) {
-          const newStatus: Loan['status'] = action === 'approve' ? 'approved' : 'rejected';
-          return { ...loan, status: newStatus };
-        }
-        return loan;
-      })
-    );
+  const getStatusBadge = (status: string) => {
+    const variants: Record<string, 'default' | 'secondary' | 'destructive'> = {
+      pending: 'default',
+      approved: 'secondary',
+      rejected: 'destructive',
+    };
+    return <Badge variant={variants[status] || 'default'}>{status.toUpperCase()}</Badge>;
   };
 
-  return (
-    <DashboardLayout title={title}>
-      <div className="space-y-6">
-        {/* Search and Filter Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Loan Management</span>
-              <div className="flex space-x-2">
-                {canCreate && (
-                  <Button asChild size="sm">
-                    <Link to="/loan-application">
-                      <Plus className="h-4 w-4 mr-2" />
-                      New Application
-                    </Link>
-                  </Button>
-                )}
-                <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4 mr-2" />
-                  Export
-                </Button>
-              </div>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    placeholder="Search by name or loan ID..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              <div className="w-full md:w-48">
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger>
-                    <Filter className="h-4 w-4 mr-2" />
-                    <SelectValue placeholder="Filter by status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="approved">Approved</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                    <SelectItem value="disbursed">Disbursed</SelectItem>
-                    <SelectItem value="closed">Closed</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+  const canCreateLoan = user?.role === 'agent';
+  const canApprove = user?.role === 'grt';
 
-        {/* Loans Table */}
-        <LoanTable
-          loans={filteredLoans}
-          title={`${filteredLoans.length} Loans Found`}
-          showActions={canApprove}
-          onLoanAction={handleLoanAction}
-        />
+  const filteredLoans = loans.filter(loan => {
+    const matchesSearch = loan.applicantName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         loan.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || loan.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const renderMobileCard = (loan: Loan) => (
+    <Card key={loan.id} className="mb-3">
+      <CardContent className="p-4">
+        <div className="flex justify-between items-start mb-2">
+          <div>
+            <h3 className="font-semibold text-sm">{loan.applicantName}</h3>
+            <p className="text-xs text-gray-500">ID: {loan.id}</p>
+          </div>
+          {getStatusBadge(loan.status)}
+        </div>
+        
+        <div className="space-y-1 mb-3">
+          <p className="text-sm">Amount: ₹{loan.amount.toLocaleString()}</p>
+          <p className="text-sm">Type: {loan.type}</p>
+          <p className="text-sm">Date: {new Date(loan.applicationDate).toLocaleDateString()}</p>
+        </div>
+
+        <div className="flex gap-2 flex-wrap">
+          <Button size="sm" variant="outline" className="flex-1">
+            <Eye className="h-3 w-3 mr-1" />
+            View
+          </Button>
+          {canCreateLoan && (
+            <Button size="sm" variant="outline" className="flex-1">
+              <Edit className="h-3 w-3 mr-1" />
+              Edit
+            </Button>
+          )}
+          {canApprove && loan.status === 'pending' && (
+            <>
+              <Button size="sm" variant="default" className="flex-1">
+                <CheckCircle className="h-3 w-3 mr-1" />
+                Approve
+              </Button>
+              <Button size="sm" variant="destructive" className="flex-1">
+                <XCircle className="h-3 w-3 mr-1" />
+                Reject
+              </Button>
+            </>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const renderDesktopTable = () => (
+    <Card>
+      <CardContent className="p-0">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="border-b bg-gray-50">
+              <tr>
+                <th className="text-left p-4 font-medium">Loan ID</th>
+                <th className="text-left p-4 font-medium">Applicant</th>
+                <th className="text-left p-4 font-medium">Amount</th>
+                <th className="text-left p-4 font-medium">Type</th>
+                <th className="text-left p-4 font-medium">Status</th>
+                <th className="text-left p-4 font-medium">Date</th>
+                <th className="text-left p-4 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredLoans.map((loan) => (
+                <tr key={loan.id} className="border-b hover:bg-gray-50">
+                  <td className="p-4">{loan.id}</td>
+                  <td className="p-4">{loan.applicantName}</td>
+                  <td className="p-4">₹{loan.amount.toLocaleString()}</td>
+                  <td className="p-4 capitalize">{loan.type}</td>
+                  <td className="p-4">{getStatusBadge(loan.status)}</td>
+                  <td className="p-4">{new Date(loan.applicationDate).toLocaleDateString()}</td>
+                  <td className="p-4">
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline">
+                        <Eye className="h-3 w-3" />
+                      </Button>
+                      {canCreateLoan && (
+                        <Button size="sm" variant="outline">
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                      )}
+                      {canApprove && loan.status === 'pending' && (
+                        <>
+                          <Button size="sm" variant="default">
+                            <CheckCircle className="h-3 w-3" />
+                          </Button>
+                          <Button size="sm" variant="destructive">
+                            <XCircle className="h-3 w-3" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <DashboardLayout title="Loan Applications">
+      <div className="space-y-4">
+        {/* Header with actions */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold">Loan Applications</h2>
+            <p className="text-sm text-gray-600">Manage and track loan applications</p>
+          </div>
+          {canCreateLoan && (
+            <Button asChild className="w-full sm:w-auto">
+              <Link to="/loan-application">
+                <Plus className="h-4 w-4 mr-2" />
+                New Application
+              </Link>
+            </Button>
+          )}
+        </div>
+
+        {/* Search and filters */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search by name or ID..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-3 py-2 border rounded-md bg-white text-sm"
+          >
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+
+        {/* Loans list */}
+        {filteredLoans.length === 0 ? (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <p className="text-gray-500">No loans found matching your criteria.</p>
+            </CardContent>
+          </Card>
+        ) : isMobile ? (
+          <div>
+            {filteredLoans.map(renderMobileCard)}
+          </div>
+        ) : (
+          renderDesktopTable()
+        )}
       </div>
     </DashboardLayout>
   );

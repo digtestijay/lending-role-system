@@ -1,20 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../layout/DashboardLayout';
-import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '../ui/table';
-import { Search, Phone, Mail, MapPin, Eye } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Search, Phone, Mail, MapPin, User } from 'lucide-react';
+import { useIsMobile } from '../../hooks/use-mobile';
 
 interface Customer {
   id: string;
@@ -24,24 +16,16 @@ interface Customer {
   address: string;
   totalLoans: number;
   activeLoans: number;
-  totalAmount: number;
-  status: 'active' | 'inactive' | 'defaulter';
-  lastActivity: string;
+  status: 'active' | 'inactive';
 }
 
-interface CustomersPageProps {
-  title: string;
-  canViewDetails?: boolean;
-}
-
-const CustomersPage: React.FC<CustomersPageProps> = ({ title, canViewDetails = true }) => {
-  const { user } = useAuth();
+const CustomersPage: React.FC = () => {
+  const isMobile = useIsMobile();
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    // Mock data - replace with actual API calls
+    // Mock data
     const mockCustomers: Customer[] = [
       {
         id: 'CUST001',
@@ -51,169 +35,157 @@ const CustomersPage: React.FC<CustomersPageProps> = ({ title, canViewDetails = t
         address: 'Mumbai, Maharashtra',
         totalLoans: 2,
         activeLoans: 1,
-        totalAmount: 750000,
         status: 'active',
-        lastActivity: '2024-01-15',
       },
       {
         id: 'CUST002',
         name: 'Priya Sharma',
         email: 'priya@example.com',
         phone: '+91 9876543211',
-        address: 'Delhi, Delhi',
+        address: 'Delhi, India',
         totalLoans: 1,
-        activeLoans: 1,
-        totalAmount: 200000,
-        status: 'active',
-        lastActivity: '2024-01-10',
-      },
-      {
-        id: 'CUST003',
-        name: 'Amit Singh',
-        email: 'amit@example.com',
-        phone: '+91 9876543212',
-        address: 'Bangalore, Karnataka',
-        totalLoans: 3,
         activeLoans: 0,
-        totalAmount: 1200000,
         status: 'inactive',
-        lastActivity: '2024-01-05',
       },
     ];
-
     setCustomers(mockCustomers);
-    setFilteredCustomers(mockCustomers);
   }, []);
 
-  useEffect(() => {
-    if (searchTerm) {
-      const filtered = customers.filter(customer =>
-        customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.phone.includes(searchTerm)
-      );
-      setFilteredCustomers(filtered);
-    } else {
-      setFilteredCustomers(customers);
-    }
-  }, [customers, searchTerm]);
+  const filteredCustomers = customers.filter(customer =>
+    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.id.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const getStatusBadgeVariant = (status: Customer['status']) => {
-    switch (status) {
-      case 'active':
-        return 'default';
-      case 'inactive':
-        return 'secondary';
-      case 'defaulter':
-        return 'destructive';
-      default:
-        return 'secondary';
-    }
-  };
+  const renderMobileCard = (customer: Customer) => (
+    <Card key={customer.id} className="mb-3">
+      <CardContent className="p-4">
+        <div className="flex justify-between items-start mb-3">
+          <div className="flex items-center space-x-2">
+            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+              <User className="h-5 w-5 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-sm">{customer.name}</h3>
+              <p className="text-xs text-gray-500">ID: {customer.id}</p>
+            </div>
+          </div>
+          <Badge variant={customer.status === 'active' ? 'default' : 'secondary'}>
+            {customer.status}
+          </Badge>
+        </div>
+        
+        <div className="space-y-2 mb-3">
+          <div className="flex items-center space-x-2 text-sm">
+            <Mail className="h-3 w-3 text-gray-400" />
+            <span className="truncate">{customer.email}</span>
+          </div>
+          <div className="flex items-center space-x-2 text-sm">
+            <Phone className="h-3 w-3 text-gray-400" />
+            <span>{customer.phone}</span>
+          </div>
+          <div className="flex items-center space-x-2 text-sm">
+            <MapPin className="h-3 w-3 text-gray-400" />
+            <span className="truncate">{customer.address}</span>
+          </div>
+        </div>
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-    }).format(amount);
-  };
+        <div className="flex justify-between text-sm bg-gray-50 p-2 rounded">
+          <span>Total Loans: {customer.totalLoans}</span>
+          <span>Active: {customer.activeLoans}</span>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const renderDesktopTable = () => (
+    <Card>
+      <CardContent className="p-0">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="border-b bg-gray-50">
+              <tr>
+                <th className="text-left p-4 font-medium">Customer</th>
+                <th className="text-left p-4 font-medium">Contact</th>
+                <th className="text-left p-4 font-medium">Address</th>
+                <th className="text-left p-4 font-medium">Loans</th>
+                <th className="text-left p-4 font-medium">Status</th>
+                <th className="text-left p-4 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredCustomers.map((customer) => (
+                <tr key={customer.id} className="border-b hover:bg-gray-50">
+                  <td className="p-4">
+                    <div>
+                      <div className="font-medium">{customer.name}</div>
+                      <div className="text-sm text-gray-500">{customer.id}</div>
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <div className="text-sm">
+                      <div>{customer.email}</div>
+                      <div className="text-gray-500">{customer.phone}</div>
+                    </div>
+                  </td>
+                  <td className="p-4 text-sm">{customer.address}</td>
+                  <td className="p-4 text-sm">
+                    <div>Total: {customer.totalLoans}</div>
+                    <div>Active: {customer.activeLoans}</div>
+                  </td>
+                  <td className="p-4">
+                    <Badge variant={customer.status === 'active' ? 'default' : 'secondary'}>
+                      {customer.status}
+                    </Badge>
+                  </td>
+                  <td className="p-4">
+                    <Button size="sm" variant="outline">
+                      View Details
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
-    <DashboardLayout title={title}>
-      <div className="space-y-6">
-        {/* Search Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Customer Management</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Search customers..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </CardContent>
-        </Card>
+    <DashboardLayout title="Customers">
+      <div className="space-y-4">
+        {/* Header */}
+        <div>
+          <h2 className="text-xl sm:text-2xl font-bold">Customers</h2>
+          <p className="text-sm text-gray-600">Manage customer information and history</p>
+        </div>
 
-        {/* Customers Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{filteredCustomers.length} Customers Found</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Customer ID</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead className="hidden md:table-cell">Contact</TableHead>
-                    <TableHead className="hidden lg:table-cell">Location</TableHead>
-                    <TableHead>Loans</TableHead>
-                    <TableHead>Total Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                    {canViewDetails && <TableHead>Actions</TableHead>}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredCustomers.map((customer) => (
-                    <TableRow key={customer.id}>
-                      <TableCell className="font-medium">{customer.id}</TableCell>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{customer.name}</p>
-                          <p className="text-sm text-gray-500 md:hidden">{customer.email}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        <div className="space-y-1">
-                          <div className="flex items-center text-sm">
-                            <Mail className="h-3 w-3 mr-1" />
-                            {customer.email}
-                          </div>
-                          <div className="flex items-center text-sm">
-                            <Phone className="h-3 w-3 mr-1" />
-                            {customer.phone}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        <div className="flex items-center text-sm">
-                          <MapPin className="h-3 w-3 mr-1" />
-                          {customer.address}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <p className="text-sm">Total: {customer.totalLoans}</p>
-                          <p className="text-sm text-green-600">Active: {customer.activeLoans}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>{formatCurrency(customer.totalAmount)}</TableCell>
-                      <TableCell>
-                        <Badge variant={getStatusBadgeVariant(customer.status)}>
-                          {customer.status}
-                        </Badge>
-                      </TableCell>
-                      {canViewDetails && (
-                        <TableCell>
-                          <Button size="sm" variant="outline">
-                            <Eye className="h-4 w-4 mr-1" />
-                            View
-                          </Button>
-                        </TableCell>
-                      )}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Search customers..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
+        {/* Customers list */}
+        {filteredCustomers.length === 0 ? (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <p className="text-gray-500">No customers found.</p>
+            </CardContent>
+          </Card>
+        ) : isMobile ? (
+          <div>
+            {filteredCustomers.map(renderMobileCard)}
+          </div>
+        ) : (
+          renderDesktopTable()
+        )}
       </div>
     </DashboardLayout>
   );

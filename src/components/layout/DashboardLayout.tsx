@@ -26,27 +26,28 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="min-h-screen flex w-full bg-gray-50">
         <AppSidebar />
         
-        <div className="flex-1 flex flex-col">
-          {/* Header */}
-          <header className="bg-white shadow-sm border-b px-4 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <SidebarTrigger>
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Mobile-optimized Header */}
+          <header className="bg-white shadow-sm border-b sticky top-0 z-40">
+            <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3">
+              <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
+                <SidebarTrigger className="flex-shrink-0">
                   <Menu className="h-5 w-5" />
                 </SidebarTrigger>
-                <h1 className="text-xl font-semibold text-gray-900 hidden sm:block">{title}</h1>
-                {isMobile && (
-                  <h1 className="text-lg font-semibold text-gray-900 truncate">{title}</h1>
-                )}
+                <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
+                  {isMobile && title.length > 15 ? `${title.substring(0, 15)}...` : title}
+                </h1>
               </div>
               
-              <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600 capitalize hidden md:block">
-                  {user?.role} Dashboard
-                </span>
+              <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+                {!isMobile && (
+                  <span className="text-sm text-gray-600 capitalize hidden md:block">
+                    {user?.role} Dashboard
+                  </span>
+                )}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -73,9 +74,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
             </div>
           </header>
           
-          {/* Main Content */}
-          <main className="flex-1 p-4 md:p-6 overflow-auto">
-            {children}
+          {/* Mobile-optimized Main Content */}
+          <main className="flex-1 overflow-auto">
+            <div className="p-3 sm:p-4 md:p-6">
+              {children}
+            </div>
           </main>
         </div>
       </div>

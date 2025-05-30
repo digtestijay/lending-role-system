@@ -25,10 +25,12 @@ import {
   Shield,
   Database
 } from 'lucide-react';
+import { useIsMobile } from '../../hooks/use-mobile';
 
 const AppSidebar: React.FC = () => {
   const { user } = useAuth();
   const location = useLocation();
+  const isMobile = useIsMobile();
 
   const getMenuItems = () => {
     const baseItems = [
@@ -42,14 +44,14 @@ const AppSidebar: React.FC = () => {
           { title: 'New Application', url: '/loan-application', icon: Plus },
           { title: 'Loan List', url: '/agent/loans', icon: FileText },
           { title: 'Customers', url: '/agent/customers', icon: Users },
-          { title: 'Collection Table', url: '/agent/collections', icon: CreditCard },
+          { title: 'Collections', url: '/agent/collections', icon: CreditCard },
         ];
       
       case 'grt':
         return [
           ...baseItems,
           { title: 'Loan Reviews', url: '/grt/loans', icon: FileText },
-          { title: 'Collection Table', url: '/grt/collections', icon: CreditCard },
+          { title: 'Collections', url: '/grt/collections', icon: CreditCard },
           { title: 'Customers', url: '/grt/customers', icon: Users },
           { title: 'Reports', url: '/grt/reports', icon: BarChart3 },
         ];
@@ -57,9 +59,9 @@ const AppSidebar: React.FC = () => {
       case 'bm':
         return [
           ...baseItems,
-          { title: 'Team Performance', url: '/bm/performance', icon: BarChart3 },
+          { title: 'Performance', url: '/bm/performance', icon: BarChart3 },
           { title: 'Loan Portfolio', url: '/bm/loans', icon: FileText },
-          { title: 'Collection Overview', url: '/bm/collections', icon: CreditCard },
+          { title: 'Collections', url: '/bm/collections', icon: CreditCard },
           { title: 'Customer Base', url: '/bm/customers', icon: Users },
         ];
       
@@ -80,27 +82,37 @@ const AppSidebar: React.FC = () => {
   const menuItems = getMenuItems();
 
   return (
-    <Sidebar>
-      <SidebarHeader className="p-4">
+    <Sidebar className="border-r">
+      <SidebarHeader className="p-3 sm:p-4">
         <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
             <span className="text-white font-bold text-sm">LMS</span>
           </div>
-          <span className="font-semibold text-lg">Loan Management</span>
+          <div className="min-w-0">
+            <span className="font-semibold text-base sm:text-lg truncate block">
+              {isMobile ? 'LMS' : 'Loan Management'}
+            </span>
+          </div>
         </div>
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="capitalize">{user?.role} Menu</SidebarGroupLabel>
+          <SidebarGroupLabel className="capitalize text-xs sm:text-sm">
+            {user?.role} Menu
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={location.pathname === item.url}>
-                    <Link to={item.url} className="flex items-center space-x-2">
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={location.pathname === item.url}
+                    className="w-full justify-start"
+                  >
+                    <Link to={item.url} className="flex items-center space-x-3 w-full">
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      <span className="truncate text-sm">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -110,9 +122,9 @@ const AppSidebar: React.FC = () => {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4">
-        <div className="text-sm text-muted-foreground">
-          Logged in as {user?.role}
+      <SidebarFooter className="p-3 sm:p-4">
+        <div className="text-xs sm:text-sm text-muted-foreground">
+          {user?.role} user
         </div>
       </SidebarFooter>
     </Sidebar>
