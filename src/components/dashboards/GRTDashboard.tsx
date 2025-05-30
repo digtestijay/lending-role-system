@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../layout/DashboardLayout';
 import StatsCard from '../common/StatsCard';
@@ -51,11 +50,13 @@ const GRTDashboard: React.FC = () => {
 
   const handleLoanAction = (loanId: string, action: string) => {
     setPendingLoans(prevLoans => 
-      prevLoans.map(loan => 
-        loan.id === loanId 
-          ? { ...loan, status: action === 'approve' ? 'approved' : 'rejected' }
-          : loan
-      ).filter(loan => loan.status === 'pending')
+      prevLoans.map(loan => {
+        if (loan.id === loanId) {
+          const newStatus: Loan['status'] = action === 'approve' ? 'approved' : 'rejected';
+          return { ...loan, status: newStatus };
+        }
+        return loan;
+      }).filter(loan => loan.status === 'pending')
     );
 
     toast({
