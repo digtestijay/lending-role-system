@@ -7,6 +7,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Search, Phone, Mail, MapPin, User } from 'lucide-react';
 import { useIsMobile } from '../../hooks/use-mobile';
+import { useNavigate } from 'react-router-dom';
 
 interface Customer {
   id: string;
@@ -21,6 +22,7 @@ interface Customer {
 
 const CustomersPage: React.FC = () => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -57,6 +59,10 @@ const CustomersPage: React.FC = () => {
     customer.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleViewDetails = (customerId: string) => {
+    navigate(`/customer/${customerId}`);
+  };
+
   const renderMobileCard = (customer: Customer) => (
     <Card key={customer.id} className="mb-3">
       <CardContent className="p-4">
@@ -90,9 +96,17 @@ const CustomersPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex justify-between text-sm bg-gray-50 p-2 rounded">
-          <span>Total Loans: {customer.totalLoans}</span>
-          <span>Active: {customer.activeLoans}</span>
+        <div className="flex justify-between items-center">
+          <div className="text-sm bg-gray-50 p-2 rounded flex-1 mr-3">
+            <span>Total: {customer.totalLoans} | Active: {customer.activeLoans}</span>
+          </div>
+          <Button 
+            size="sm" 
+            variant="outline"
+            onClick={() => handleViewDetails(customer.id)}
+          >
+            View
+          </Button>
         </div>
       </CardContent>
     </Card>
@@ -139,7 +153,11 @@ const CustomersPage: React.FC = () => {
                     </Badge>
                   </td>
                   <td className="p-4">
-                    <Button size="sm" variant="outline">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => handleViewDetails(customer.id)}
+                    >
                       View Details
                     </Button>
                   </td>

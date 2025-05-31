@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,6 +11,8 @@ import LoanApplicationForm from "./components/forms/LoanApplicationForm";
 import LoansListPage from "./components/pages/LoansListPage";
 import CustomersPage from "./components/pages/CustomersPage";
 import CollectionsPage from "./components/pages/CollectionsPage";
+import CustomerDetailsPage from "./components/pages/CustomerDetailsPage";
+import CustomerEditPage from "./components/pages/CustomerEditPage";
 import NotFound from "./pages/NotFound";
 import CustomerInfoForm from "./components/forms/CustomerInfoForm";
 
@@ -38,6 +41,24 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <CustomerInfoForm />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Customer Details Routes */}
+            <Route
+              path="/customer/:id"
+              element={
+                <ProtectedRoute>
+                  <CustomerDetailsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/customer/:id/edit"
+              element={
+                <ProtectedRoute>
+                  <CustomerEditPage />
                 </ProtectedRoute>
               }
             />
