@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,6 +14,7 @@ import CustomerDetailsPage from "./components/pages/CustomerDetailsPage";
 import CustomerEditPage from "./components/pages/CustomerEditPage";
 import NotFound from "./pages/NotFound";
 import CustomerInfoForm from "./components/forms/CustomerInfoForm";
+import FamilyMembersForm from "./components/forms/FamilyMembersForm";
 
 const queryClient = new QueryClient();
 
