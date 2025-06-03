@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
 import { Button } from '../../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
-import { Upload, FileText, CheckCircle, AlertCircle, Eye, ExternalLink, Image, FileIcon } from 'lucide-react';
+import { Upload, FileText, CheckCircle, AlertCircle, Eye, ExternalLink, Image, FileIcon, Download } from 'lucide-react';
 import { DocumentUpload } from '../../../types';
 
 interface DocumentUploadStepProps {
@@ -50,7 +49,7 @@ const DocumentUploadStep: React.FC<DocumentUploadStepProps> = ({ data, onDataCha
       )
     );
 
-    // Create preview URL for image files
+    // Create preview URL only for image files (not PDF)
     if (file && file.type.startsWith('image/')) {
       const url = URL.createObjectURL(file);
       setPreviewUrls(prev => ({ ...prev, [type]: url }));
@@ -67,10 +66,28 @@ const DocumentUploadStep: React.FC<DocumentUploadStepProps> = ({ data, onDataCha
     if (document.url) {
       return <ExternalLink className="h-4 w-4 text-blue-500" />;
     }
+    if (file?.type === 'application/pdf') {
+      return <FileText className="h-4 w-4 text-red-500" />;
+    }
     if (file?.type.startsWith('image/')) {
       return <Image className="h-4 w-4 text-green-500" />;
     }
     return <FileIcon className="h-4 w-4 text-gray-500" />;
+  };
+
+  const handleDownloadFile = (document: DocumentUpload) => {
+    if (document.file) {
+      const url = URL.createObjectURL(document.file);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = document.file.name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } else if (document.url) {
+      window.open(document.url, '_blank');
+    }
   };
 
   const renderFilePreview = (document: DocumentUpload) => {
@@ -95,6 +112,7 @@ const DocumentUploadStep: React.FC<DocumentUploadStepProps> = ({ data, onDataCha
     // Show file preview if file is selected
     if (document.file) {
       const previewUrl = previewUrls[document.type];
+      const isPdf = document.file.type === 'application/pdf';
       
       return (
         <div className="flex items-center space-x-2 p-2 bg-gray-50 rounded border">
@@ -105,7 +123,16 @@ const DocumentUploadStep: React.FC<DocumentUploadStepProps> = ({ data, onDataCha
               {(document.file.size / 1024 / 1024).toFixed(1)}MB
             </p>
           </div>
-          {previewUrl && (
+          {isPdf ? (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => handleDownloadFile(document)}
+            >
+              <Download className="h-3 w-3 mr-1" />
+              Download
+            </Button>
+          ) : previewUrl ? (
             <div className="flex-shrink-0">
               <img 
                 src={previewUrl} 
@@ -113,7 +140,7 @@ const DocumentUploadStep: React.FC<DocumentUploadStepProps> = ({ data, onDataCha
                 className="h-12 w-12 object-cover rounded border"
               />
             </div>
-          )}
+          ) : null}
         </div>
       );
     }
