@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
@@ -62,8 +63,8 @@ const DocumentUploadStep: React.FC<DocumentUploadStepProps> = ({ data, onDataCha
     }
   };
 
-  const getFileIcon = (file: File | null, document: DocumentUpload) => {
-    if (document.url) {
+  const getFileIcon = (file: File | null, docUpload: DocumentUpload) => {
+    if (docUpload.url) {
       return <ExternalLink className="h-4 w-4 text-blue-500" />;
     }
     if (file?.type === 'application/pdf') {
@@ -75,24 +76,24 @@ const DocumentUploadStep: React.FC<DocumentUploadStepProps> = ({ data, onDataCha
     return <FileIcon className="h-4 w-4 text-gray-500" />;
   };
 
-  const handleDownloadFile = (document: DocumentUpload) => {
-    if (document.file) {
-      const url = URL.createObjectURL(document.file);
-      const a = document.createElement('a');
+  const handleDownloadFile = (docUpload: DocumentUpload) => {
+    if (docUpload.file) {
+      const url = URL.createObjectURL(docUpload.file);
+      const a = window.document.createElement('a');
       a.href = url;
-      a.download = document.file.name;
-      document.body.appendChild(a);
+      a.download = docUpload.file.name;
+      window.document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
+      window.document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    } else if (document.url) {
-      window.open(document.url, '_blank');
+    } else if (docUpload.url) {
+      window.open(docUpload.url, '_blank');
     }
   };
 
-  const renderFilePreview = (document: DocumentUpload) => {
+  const renderFilePreview = (docUpload: DocumentUpload) => {
     // Show existing URL if available
-    if (document.url) {
+    if (docUpload.url) {
       return (
         <div className="flex items-center space-x-2 p-2 bg-blue-50 rounded border">
           <ExternalLink className="h-4 w-4 text-blue-500" />
@@ -100,7 +101,7 @@ const DocumentUploadStep: React.FC<DocumentUploadStepProps> = ({ data, onDataCha
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => window.open(document.url, '_blank')}
+            onClick={() => window.open(docUpload.url, '_blank')}
           >
             <Eye className="h-3 w-3 mr-1" />
             View
@@ -110,24 +111,24 @@ const DocumentUploadStep: React.FC<DocumentUploadStepProps> = ({ data, onDataCha
     }
 
     // Show file preview if file is selected
-    if (document.file) {
-      const previewUrl = previewUrls[document.type];
-      const isPdf = document.file.type === 'application/pdf';
+    if (docUpload.file) {
+      const previewUrl = previewUrls[docUpload.type];
+      const isPdf = docUpload.file.type === 'application/pdf';
       
       return (
         <div className="flex items-center space-x-2 p-2 bg-gray-50 rounded border">
-          {getFileIcon(document.file, document)}
+          {getFileIcon(docUpload.file, docUpload)}
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{document.file.name}</p>
+            <p className="text-sm font-medium truncate">{docUpload.file.name}</p>
             <p className="text-xs text-gray-500">
-              {(document.file.size / 1024 / 1024).toFixed(1)}MB
+              {(docUpload.file.size / 1024 / 1024).toFixed(1)}MB
             </p>
           </div>
           {isPdf ? (
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => handleDownloadFile(document)}
+              onClick={() => handleDownloadFile(docUpload)}
             >
               <Download className="h-3 w-3 mr-1" />
               Download
@@ -148,7 +149,7 @@ const DocumentUploadStep: React.FC<DocumentUploadStepProps> = ({ data, onDataCha
     return null;
   };
 
-  const renderDocumentRow = (docType: any, document: DocumentUpload) => (
+  const renderDocumentRow = (docType: any, docUpload: DocumentUpload) => (
     <div key={docType.type} className="border rounded-lg p-4 space-y-3">
       {/* Header Row */}
       <div className="flex items-center justify-between">
@@ -159,7 +160,7 @@ const DocumentUploadStep: React.FC<DocumentUploadStepProps> = ({ data, onDataCha
             <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">Required</span>
           )}
         </div>
-        {document.uploaded && (
+        {docUpload.uploaded && (
           <CheckCircle className="h-5 w-5 text-green-500" />
         )}
       </div>
@@ -178,7 +179,7 @@ const DocumentUploadStep: React.FC<DocumentUploadStepProps> = ({ data, onDataCha
       </div>
 
       {/* Preview Row */}
-      {renderFilePreview(document)}
+      {renderFilePreview(docUpload)}
     </div>
   );
 
@@ -214,8 +215,8 @@ const DocumentUploadStep: React.FC<DocumentUploadStepProps> = ({ data, onDataCha
           <h4 className="font-medium text-gray-900 mb-3">Required Documents</h4>
           <div className="space-y-3">
             {requiredDocuments.map(docType => {
-              const document = documents.find(d => d.type === docType.type)!;
-              return renderDocumentRow(docType, document);
+              const docUpload = documents.find(d => d.type === docType.type)!;
+              return renderDocumentRow(docType, docUpload);
             })}
           </div>
         </div>
@@ -224,8 +225,8 @@ const DocumentUploadStep: React.FC<DocumentUploadStepProps> = ({ data, onDataCha
           <h4 className="font-medium text-gray-900 mb-3">Optional Documents</h4>
           <div className="space-y-3">
             {optionalDocuments.map(docType => {
-              const document = documents.find(d => d.type === docType.type)!;
-              return renderDocumentRow(docType, document);
+              const docUpload = documents.find(d => d.type === docType.type)!;
+              return renderDocumentRow(docType, docUpload);
             })}
           </div>
         </div>
