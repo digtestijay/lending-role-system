@@ -62,6 +62,7 @@ const AppSidebar: React.FC = () => {
           { title: 'Performance', url: '/bm/performance', icon: BarChart3 },
           { title: 'Loan Portfolio', url: '/bm/loans', icon: FileText },
           { title: 'Collections', url: '/bm/collections', icon: CreditCard },
+          { title: 'EMI Collections', url: '/bm/emi-collections', icon: CreditCard },
           { title: 'Customer Base', url: '/bm/customers', icon: Users },
         ];
       

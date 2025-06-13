@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,6 +13,7 @@ import CustomersPage from "./components/pages/CustomersPage";
 import CollectionsPage from "./components/pages/CollectionsPage";
 import CustomerDetailsPage from "./components/pages/CustomerDetailsPage";
 import CustomerEditPage from "./components/pages/CustomerEditPage";
+import BMEMICollectionsPage from "./components/pages/BMEMICollectionsPage";
 import NotFound from "./pages/NotFound";
 import CustomerInfoForm from "./components/forms/CustomerInfoForm";
 import FamilyMembersForm from "./components/forms/FamilyMembersForm";
