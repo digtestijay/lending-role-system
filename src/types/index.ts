@@ -52,6 +52,7 @@ export interface PersonalDetails {
   monthlyIncome: number;
   panNumber: string;
   aadharNumber: string;
+  group_id?: string;
 }
 
 export interface AddressDetails {
